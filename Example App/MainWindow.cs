@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -6,8 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-
-using Arduino.NET;
+using System.IO;
 
 namespace Example_App
 {
@@ -19,7 +19,7 @@ namespace Example_App
     }
     public partial class MainWindow : Form
     {
-        private Arduino.NET.Arduino Arduino = new Arduino.NET.Arduino("COM3", 19200, false, 2000);
+        private System.IO.Arduino Arduino = new System.IO.Arduino("COM3", 19200, false, 2000);
 
         public MainWindow()
         {
@@ -29,7 +29,7 @@ namespace Example_App
             Arduino.Open();
 
             /* This event fires when new data is received */
-            Arduino.CommandQueueReady += new Arduino.NET.Arduino.CommandQueueReadyEventHandler(Arduino_CommandQueueReady);
+            Arduino.CommandQueueReady += new Arduino.CommandQueueReadyEventHandler(Arduino_CommandQueueReady);
         }
 
         void Arduino_CommandQueueReady(object sender)
@@ -73,11 +73,12 @@ namespace Example_App
         /* Turn LED on in 2000 ms */
         private void button3_Click(object sender, EventArgs e)
         {
-            List<string> arguments = new List<string>();
+            ArrayList arguments = new ArrayList();
             arguments.Add("2000"); // delay 2000 ms
 
             ArduinoCommand Command = new ArduinoCommand(Commands.Command3, arguments);
 
+            MessageBox.Show(Command.ToString());
             Arduino.SendCommand(Command);
         }
     }

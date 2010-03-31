@@ -25,7 +25,7 @@ using System.IO.Ports;
 using System.Threading;
 using System.Runtime.InteropServices;
 
-namespace Arduino.NET
+namespace System.IO
 {
     [ComVisible(true)]
     public class Arduino
@@ -58,7 +58,7 @@ namespace Arduino.NET
 
         public Arduino(string comport, int baudrate, bool autostart) : this(comport, baudrate, autostart, 3000) { }
 
-        public Arduino(string comport, int baudrate) : this(comport, baudrate, true) { }
+        public Arduino(string comport, int baudrate) : this(comport, baudrate, false) { }
 
         public Arduino(string comport) : this(comport, 9600) { }
 
@@ -76,7 +76,9 @@ namespace Arduino.NET
 
         private void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            ArduinoCommand command = new ArduinoCommand(this._serialPort.ReadLine().Trim("\r".ToCharArray()));
+            string temp = this._serialPort.ReadLine().Trim("\r".ToCharArray());
+            System.Windows.Forms.MessageBox.Show(temp);
+            ArduinoCommand command = new ArduinoCommand(temp);
             this._commandStack.Push(command);
             if (this.CommandQueueReady != null)
                 this.CommandQueueReady(this);
@@ -103,7 +105,7 @@ namespace Arduino.NET
         private const byte ESCAPE_CHARACTER = 0x5C;
 
         private byte _Command;
-        private List<string> _CommandArgs = new List<string>();
+        private ArrayList _CommandArgs = new ArrayList();
         private ASCIIEncoding encoder = new ASCIIEncoding();
 
         public ArduinoCommand(string CommandString)
@@ -119,13 +121,13 @@ namespace Arduino.NET
             }
         }
 
-        public ArduinoCommand(byte command, List<string> argv)
+        public ArduinoCommand(byte command, ArrayList argv)
         {
             this._Command = command;
             this._CommandArgs = argv;
         }
 
-        public ArduinoCommand(byte command) : this(command, new List<string>()) { }
+        public ArduinoCommand(byte command) : this(command, new ArrayList()) { }
 
         public ArduinoCommand()
         {
@@ -137,7 +139,7 @@ namespace Arduino.NET
             set { this._Command = value; }
         }
 
-        public List<string> CommandArgs
+        public ArrayList CommandArgs
         {
             get { return this._CommandArgs; }
             set { this._CommandArgs = value; }
@@ -148,9 +150,20 @@ namespace Arduino.NET
             string ret = "";
             ret += encoder.GetString(new byte[] { this._Command });
 
-            ret += encoder.GetString(new byte[] { ARG_SEPARATOR }) +
-                string.Join(encoder.GetString(new byte[] { ARG_SEPARATOR }), this._CommandArgs.ToArray()) +
-                encoder.GetString(new byte[] { ARG_SEPARATOR }) +
+            foreach (object o in this._CommandArgs)
+            {
+                ret += encoder.GetString(new byte[] { ARG_SEPARATOR });
+                if (o.GetType() == typeof(bool))
+                {
+                    ret += ((bool)o) ? "1" : "0";
+                }
+                else
+                {
+                    ret += o.ToString();
+                }
+            }
+
+            ret+= encoder.GetString(new byte[] { ARG_SEPARATOR }) +
                 encoder.GetString(new byte[] { END_MESSAGE });
 
             return ret;
