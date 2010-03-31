@@ -52,6 +52,11 @@ namespace Arduino.NET
             Thread.Sleep(this.delay);
         }
 
+        public void Close()
+        {
+            this._serialPort.Close();
+        }
+
         private void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             ArduinoCommand command = new ArduinoCommand(this._serialPort.ReadLine().Trim("\r".ToCharArray()));
@@ -103,7 +108,7 @@ namespace Arduino.NET
             this._CommandArgs = argv;
         }
 
-        public ArduinoCommand(byte command) : this(command, null) { }
+        public ArduinoCommand(byte command) : this(command, new List<string>()) { }
 
         public ArduinoCommand()
         {
