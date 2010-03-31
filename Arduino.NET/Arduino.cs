@@ -127,9 +127,18 @@ namespace System.IO
 
         public ArduinoCommand(byte command) : this(command, new ArrayList()) { }
 
-        public ArduinoCommand()
+        public ArduinoCommand(byte command, params object[] list)
         {
+            ArrayList l = new ArrayList();
+            foreach (object o in list)
+            {
+                l.Add(o);
+            }
+            this._Command = command;
+            this._CommandArgs = l;
         }
+
+        public ArduinoCommand() { }
 
         public byte Command
         {

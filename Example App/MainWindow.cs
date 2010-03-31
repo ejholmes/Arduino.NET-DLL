@@ -60,6 +60,7 @@ namespace Example_App
             Command.Command = Commands.Command1;
 
             Arduino.SendCommand(Command);
+
         }
 
         /* Turn LED off */
