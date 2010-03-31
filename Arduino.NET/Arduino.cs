@@ -76,9 +76,7 @@ namespace System.IO
 
         private void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            string temp = this._serialPort.ReadLine().Trim("\r".ToCharArray());
-            System.Windows.Forms.MessageBox.Show(temp);
-            ArduinoCommand command = new ArduinoCommand(temp);
+            ArduinoCommand command = new ArduinoCommand(this._serialPort.ReadLine().Trim("\r".ToCharArray()));
             this._commandStack.Push(command);
             if (this.CommandQueueReady != null)
                 this.CommandQueueReady(this);
